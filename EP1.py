@@ -1,8 +1,10 @@
 # n = índice das cartas para recuperar na lista
 # append = aplica na lista os novos elementos
+# regras da terceira carta para o banco implemetadas
 import random
 # lista de cartas e lista de valores das cartas 
-cartas = ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K']
+# add *4 pra ser um baralho completo de 52 cartas
+cartas = ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K'] * 4
 valores = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0]
 fichas1 = 100
 # por enquanto só um jogador e o banco
@@ -62,46 +64,62 @@ while jogando:
     print('Soma das cartas do banco:', soma_das_cartasb)
 
     # condições:
-    # quando a soma das cartas é inferior a 5... ocorre o sorteio de mais uma carta para aquele(s) que teve(tiveram) a soma menor que 5
+    # quando a soma das cartas é inferior a 5 e 6... ocorre o sorteio de mais uma carta para o jogador 1 e a partir disso é avaliado se o banco receberá outra carta
     # ...nas duas somas: 
-    if soma_das_cartas1 <= 5 and soma_das_cartasb <= 5:
+    sorteia_banco = False
+    if soma_das_cartas1 <= 5 and soma_das_cartasb <= 6:
         n_jogador1 = random.randint(0,12)
-        n_banco = random.randint(0,12)
         carta_jogador1 = cartas[n_jogador1]
-        carta_banco = cartas[n_banco]
         jogador1.append(carta_jogador1)
-        banco.append(carta_banco)
         índice_valor1 = cartas.index(jogador1[2])
-        índice_valorb = cartas.index(banco[2])
         soma_das_cartas1 += valores[índice_valor1]
-        soma_das_cartasb += valores[índice_valorb]
         if soma_das_cartas1 > 9:
             soma_das_cartas1 -= 10
-        if soma_das_cartasb > 9:
-            soma_das_cartasb -= 10
-        print('As duas somas das cartas foram menores que 5. Sorteando uma terceira carta...')
+        print('As somas das suas cartas e das cartas do banco foram ambas muito pequenas. Sorteando uma terceira carta para o jogador 1 e avaliando se o banco receberá mais uma carta...')
+        print('Sua nova carta:', jogador1[2])
         print('Nova soma das suas cartas:', soma_das_cartas1)
-        print('Nova soma das cartas do banco:', soma_das_cartasb)  
+
+        if (soma_das_cartasb == 6) and (valores[cartas.index(jogador1[2])] == 6 or valores[cartas.index(jogador1[2])] == 7):
+            sorteia_banco = True
+        elif (valores[cartas.index(jogador1[2])] > 3 and valores[cartas.index(jogador1[2])] < 8) and soma_das_cartasb == 5:
+            sorteia_banco = True
+        elif valores[cartas.index(jogador1[2])] == 4 and soma_das_cartasb > 1 and soma_das_cartasb < 8:
+            sorteia_banco = True
+        elif soma_das_cartasb == 3 and valores[cartas.index(jogador1[2])] != 8:
+            sorteia_banco = True
+        elif valores[cartas.index(jogador1[2])] >= 0 and soma_das_cartasb < 3:
+            sorteia_banco = True
+        else:
+            sorteia_banco = False  
+            print('O banco não recebe outra carta') 
+      
     # ...na soma das cartas jogador1:
-    elif soma_das_cartas1 <= 5 and soma_das_cartasb > 5 and soma_das_cartasb < 8:
+    if soma_das_cartas1 <= 5 and (soma_das_cartasb >= 6 and soma_das_cartasb <= 7):
         n_jogador1 = random.randint(0,12)
         carta_jogador1 = cartas[n_jogador1]
         jogador1.append(carta_jogador1)
         índice_valor1 = cartas.index(jogador1[2])
-        soma_das_cartas1 += valores[índice_valor1]
+        soma_das_cartas1 += valores[índice_valor1]  
         if soma_das_cartas1 > 9:
-            soma_das_cartas1 -= 10  
-            print('A soma das suas cartas foram menores que 5. Nova soma das cartas:', soma_das_cartas1)
+            soma_das_cartas1 -= 10 
+        print('A soma das suas cartas foi menor que 5. Nova soma das cartas:', soma_das_cartas1)
     # ...na soma das cartas do banco:
-    elif soma_das_cartasb <= 5 and soma_das_cartas1 > 5 and soma_das_cartas1 < 8:
+    if soma_das_cartasb <= 5 and soma_das_cartas1 > 5 and soma_das_cartas1 < 8:
+        sorteia_banco = True
+        print('A soma das cartas do banco foi menor que 5')
+        
+    if sorteia_banco == True:
         n_banco = random.randint(0,12)
         carta_banco = cartas[n_banco]
         banco.append(carta_banco)
         índice_valorb = cartas.index(banco[2])
-        soma_das_cartasb += valores[índice_valorb]
+        soma_das_cartasb += valores[índice_valorb]   
         if soma_das_cartasb > 9:
-            soma_das_cartasb -= 10 
-        print('A soma das cartas do banco foram menores que 5. Nova soma das cartas:', soma_das_cartasb)  
+            soma_das_cartasb -= 10
+        if soma_das_cartas1 > 9:
+            soma_das_cartas1 -= 10 
+        print('Nova soma das cartas do banco:', soma_das_cartasb) 
+
     # adicionado vencer = True para facilitar e diminuir o programa
     # se o resultado for 6 e ou 7 nas somas são três possibilidades:
     # o banco vence,
@@ -180,4 +198,4 @@ while jogando:
     # para finalizar o loop:
     if fichas1 <= 0:
         jogando = False
-        print('Você não tem mais fichas.')
+        print('Você perdeu o jogo.')
