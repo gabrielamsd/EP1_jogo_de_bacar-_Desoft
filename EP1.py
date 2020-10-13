@@ -28,35 +28,60 @@ def comissão(aposta, valor_da_aposta, fichas1):
         fichas1 += valor_da_aposta * 0.9876 * 0.95
     return fichas1
 
+aposta_vencedora = 0
+# adicionando opções de jogo com mais de 1 baralho.
+inválido = True
+while inválido:
+    baralhos = int(input('Gostaria de jogar com 6 ou 8 baralhos? ' ))
+    if baralhos != 6 and baralhos != 8:
+        print('Quantidade de baralhos inválida. Opções possíveis: 6 ou 8')
+    else:
+        inválido = False
+
+# adicionando opção de escolha no número de jogadores
+número_de_jogadores = int(input('Quantos jogadores participarão? '))
 cartas = ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K'] 
 valores = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0]
 fichas1 = 100
-contador = [32]*len(cartas)  # 32 cartas de cada pois em um baralho existem 4 naipes. com 8 baralhos o limite fica 32 cartas para cada símbolo
-# por enquanto só um jogador e o banco
+fichas = [fichas1]  * número_de_jogadores
+apostas = []
+valores_das_apostas = []
+if baralhos == 8:
+    contador = [32]*len(cartas)  # 32 cartas de cada pois em um baralho existem 4 naipes. com 8 baralhos o limite fica 32 cartas para cada símbolo
+elif baralhos == 6:
+    contador = [24]*len(cartas)  # 24 cartas de cada pois em um baralho existem 4 naipes. com 6 baralhos o limite fica 24 cartas para cada símbolo
+
+# adicionando mais jogadores para apostar
 # adicionado while e condição de validade para a interação
 jogando = True
 while jogando:
     venceu = True
     jogador1 = [] # listas vazias para as cartas serem adicionadas
     banco = []
-    print('Você está começando a rodada com {} fichas'.format(fichas1))
-    inválido = True # invalida as situações em que o jogo não poderia acontecer. evita apostar mais do que poderia e escrever termos sem sentido
-    while inválido:
-        aposta = input('Qual é sua aposta? Digite "B" para banco, "E" para empate e "J" para jogador. Para sair do jogo aperte S. ') # padronização de apenas uma letra maiúscula para não dificultar a escrita
-        if aposta != 'B' and aposta != 'E' and aposta != 'J':
-            print('Aposta inválida!')
-        elif aposta == 'S':
-            jogando = False
-            print('Obrigado por jogar!')
-        else:
-            inválido = False
-    inválido = True
-    while inválido:    
-        valor_da_aposta = int(input('Quanto você aposta? Digite apenas números por favor '))
-        if valor_da_aposta > fichas1:
-            print('Você não possui essa quantidade de fichas. Seu limite é {}'.format(fichas1))
-        else:
-            inválido = False
+    
+    i = 0 
+    while i < número_de_jogadores:
+        print('Jogador {0}, você está começando a rodada com {1} fichas'.format(i+1, fichas1))
+        inválido = True # invalida as situações em que o jogo não poderia acontecer. evita apostar mais do que poderia e escrever termos sem sentido
+        while inválido:
+            aposta = input('Jogador {0}, qual é sua aposta? Digite "B" para banco, "E" para empate e "J" para jogador. Para sair do jogo aperte S. '.format(i+1)) # padronização de apenas uma letra maiúscula para não dificultar a escrita
+            if aposta != 'B' and aposta != 'E' and aposta != 'J':
+                print('Aposta inválida!')
+            elif aposta == 'S':
+                jogando = False
+                print('Obrigado por jogar!')
+            else:
+                inválido = False
+                apostas.append(aposta)
+        inválido = True
+        while inválido:    
+            valor_da_aposta = int(input('Quanto você aposta? Digite apenas números por favor '))
+            if valor_da_aposta > fichas1:
+                print('Você não possui essa quantidade de fichas. Seu limite é {}'.format(fichas1))
+            else:
+                valores_das_apostas.append(valor_da_aposta)
+                inválido = False
+        i+=1
     # sorteando duas cartas para cada um
     # adicionado falar as cartas selecionadas para organizar a interação
     # adicionada a função para substituir o parágrafo
@@ -138,6 +163,7 @@ while jogando:
     if soma_das_cartas1 == 6 and soma_das_cartasb == 7:
         if aposta == 'B':
             venceu = True
+            aposta_vencedora = 'B'
         elif aposta == 'E':
            venceu = False
         elif aposta == 'J':
@@ -150,6 +176,7 @@ while jogando:
             venceu = False
         elif aposta == 'J':
             venceu = True 
+            aposta_vencedora = 'J'
 
     # condições para vencer com 8 ou 9:
     if (soma_das_cartas1 == 8 or soma_das_cartas1 == 9) and (soma_das_cartasb != 8 and soma_das_cartasb != 9):
@@ -159,9 +186,11 @@ while jogando:
             venceu = False
         elif aposta == 'J':
             venceu = True
+            aposta_vencedora = 'J'
     if (soma_das_cartasb == 8 or soma_das_cartasb == 9) and (soma_das_cartas1 != 8 and soma_das_cartas1 != 9):
         if aposta == 'B':
             venceu = True
+            aposta_vencedora = 'B'
         elif aposta == 'E':
            venceu = False
         elif aposta == 'J':
@@ -172,12 +201,14 @@ while jogando:
            venceu = False
         elif aposta == 'E':
             venceu = True
+            aposta_vencedora = 'E'
         elif aposta == 'J':
             venceu = False
     # quando a terceira carta já foi sorteada mas ainda não são 8 ou 9:
     else: 
         if soma_das_cartasb > soma_das_cartas1:
             if aposta == 'B':
+                aposta_vencedora = 'B'
                 venceu = True
             elif aposta == 'E':
                 venceu = False
@@ -190,23 +221,32 @@ while jogando:
                 venceu = False
             elif aposta == 'J':
                 venceu = True
+                aposta_vencedora = 'J'
         if soma_das_cartasb == soma_das_cartas1:
             if aposta == 'B':
                 venceu = False
             elif aposta == 'E':
                 venceu = True
+                aposta_vencedora = 'E'
             elif aposta == 'J':
                 venceu = False
 
     if venceu == True:
-        fichas1 = comissão(aposta, valor_da_aposta, fichas1)
-        print('Você ganhou essa rodada')
-        print('Você tem {0:.2f} fichas'.format(fichas1)) # conversei com o andrew sobre o número de casas decimais e ele disse que uma boa ideia seria reduzir pra duas 
-
-    elif venceu == False:
-        fichas1 -= valor_da_aposta
-        print('Você perdeu sua aposta')
-        print('Você tem {} fichas'.format(fichas1))
+        i=0 
+        while i < número_de_jogadores:
+            if apostas[i] == aposta_vencedora:
+                fichas[i] = comissão(aposta, valores_das_apostas[i], fichas1)
+                print('Jogador {}, você ganhou essa rodada'.format(i+1))
+                print('Você tem {0:.2f} fichas'.format(fichas1)) # conversei com o andrew sobre o número de casas decimais e ele disse que uma boa ideia seria reduzir pra duas 
+            i += 1
+    if venceu == False:
+        i=0
+        while i < número_de_jogadores:
+            if apostas[i] != aposta_vencedora:
+                fichas[i] -= valores_das_apostas[i]
+                print('Jogador {},você perdeu sua aposta'.format(i+1))
+                print('Você tem {} fichas'.format(fichas[i]))
+            i += 1
     # para finalizar o loop:
     if fichas1 <= 0:
         jogando = False
