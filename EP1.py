@@ -1,8 +1,7 @@
 # n = índice das cartas para recuperar na lista
 # append = aplica na lista os novos elementos
 # regras da terceira carta para o banco implemetadas
-# tirar as cartas que já foram sorteadas na hora de sortear as próximas
-# trava na função na segunda vez que roda
+# refinação do código para não ficar muito extenso
 import random
 # lista de cartas e lista de valores das cartas 
 # add *8 pra ser oito baralho completo de 52 cartas - contador adicionado que limita o número de cartas para 4 por baralho, 32 cartas de cada símbolo.
@@ -55,7 +54,6 @@ elif baralhos == 6:
 # adicionado while e condição de validade para a interação
 jogando = True
 while jogando:
-    venceu = True
     jogador1 = [] # listas vazias para as cartas serem adicionadas
     banco = []
     
@@ -64,7 +62,7 @@ while jogando:
         print('Jogador {0}, você está começando a rodada com {1} fichas'.format(i+1, fichas1))
         inválido = True # invalida as situações em que o jogo não poderia acontecer. evita apostar mais do que poderia e escrever termos sem sentido
         while inválido:
-            aposta = input('Jogador {0}, qual é sua aposta? Digite "B" para banco, "E" para empate e "J" para jogador. Para sair do jogo aperte S. '.format(i+1)) # padronização de apenas uma letra maiúscula para não dificultar a escrita
+            aposta = input('Qual é sua aposta? Digite "B" para banco, "E" para empate e "J" para jogador. Para sair do jogo aperte S. '.format(i+1)) # padronização de apenas uma letra maiúscula para não dificultar a escrita
             if aposta != 'B' and aposta != 'E' and aposta != 'J':
                 print('Aposta inválida!')
             elif aposta == 'S':
@@ -88,7 +86,7 @@ while jogando:
     print('Sorteando...')
     jogador1 = sorteio_de_cartas(cartas, contador, jogador1, 2)
     banco = sorteio_de_cartas(cartas, contador, banco, 2)
-    print('Suas cartas:', jogador1)
+    print('Cartas do jogador:', jogador1)
     print('Cartas do banco:', banco)
     
     # atribuir o valor da lista "valores" às cartas da lista "cartas" e somar as sorteadas anteriormente
@@ -106,7 +104,7 @@ while jogando:
         soma_das_cartas1 -= 10
     if soma_das_cartasb > 9:
         soma_das_cartasb -= 10
-    print('Soma das suas cartas:', soma_das_cartas1)
+    print('Soma das cartas do jogador:', soma_das_cartas1)
     print('Soma das cartas do banco:', soma_das_cartasb)
 
     # condições:
@@ -119,9 +117,9 @@ while jogando:
 
         if soma_das_cartas1 > 9:
             soma_das_cartas1 -= 10
-        print('As somas das suas cartas e das cartas do banco foram ambas muito pequenas. Sorteando uma terceira carta para o jogador 1 e avaliando se o banco receberá mais uma carta...')
-        print('Sua nova carta:', jogador1[2])
-        print('Nova soma das suas cartas:', soma_das_cartas1)
+        print('As somas das cartas do jogador e das cartas do banco foram ambas muito pequenas. Sorteando uma terceira carta para o jogador 1 e avaliando se o banco receberá mais uma carta...')
+        print('Nova carta do jogador:', jogador1[2])
+        print('Nova soma das cartas do jogador:', soma_das_cartas1)
 
         if (soma_das_cartasb == 6) and (valores[cartas.index(jogador1[2])] == 6 or valores[cartas.index(jogador1[2])] == 7):
             sorteia_banco = True
@@ -143,7 +141,7 @@ while jogando:
         soma_das_cartas1 += valores[cartas.index(jogador1[2])] 
         if soma_das_cartas1 > 9:
             soma_das_cartas1 -= 10 
-        print('A soma das suas cartas foi menor que 5. Nova soma das cartas:', soma_das_cartas1)
+        print('A soma das cartas do jogador foi menor que 5. Nova soma das cartas:', soma_das_cartas1)
     # ...na soma das cartas do banco:
     if soma_das_cartasb <= 5 and soma_das_cartas1 > 5 and soma_das_cartas1 < 8:
         sorteia_banco = True
@@ -161,92 +159,43 @@ while jogando:
     # se o resultado for 6 e ou 7 nas somas são três possibilidades:
     # o banco vence,
     if soma_das_cartas1 == 6 and soma_das_cartasb == 7:
-        if aposta == 'B':
-            venceu = True
             aposta_vencedora = 'B'
-        elif aposta == 'E':
-           venceu = False
-        elif aposta == 'J':
-            venceu = False
     # o jogador vence, ou empate, que sera apresentado junto às outras opções de empate
     if soma_das_cartas1 == 7 and soma_das_cartasb == 6:
-        if aposta == 'B':
-           venceu = False
-        elif aposta == 'E':
-            venceu = False
-        elif aposta == 'J':
-            venceu = True 
             aposta_vencedora = 'J'
 
     # condições para vencer com 8 ou 9:
     if (soma_das_cartas1 == 8 or soma_das_cartas1 == 9) and (soma_das_cartasb != 8 and soma_das_cartasb != 9):
-        if aposta == 'B':
-            venceu = False
-        elif aposta == 'E':
-            venceu = False
-        elif aposta == 'J':
-            venceu = True
             aposta_vencedora = 'J'
     if (soma_das_cartasb == 8 or soma_das_cartasb == 9) and (soma_das_cartas1 != 8 and soma_das_cartas1 != 9):
-        if aposta == 'B':
-            venceu = True
             aposta_vencedora = 'B'
-        elif aposta == 'E':
-           venceu = False
-        elif aposta == 'J':
-            venceu = False
     # empates aqui!!!
     if (soma_das_cartasb == 8 or soma_das_cartasb == 9) and (soma_das_cartas1 == 8 or soma_das_cartas1 == 9) or ((soma_das_cartas1 == 6 and soma_das_cartasb == 6) or (soma_das_cartas1 == 7 and soma_das_cartasb == 7)):
-        if aposta == 'B':
-           venceu = False
-        elif aposta == 'E':
-            venceu = True
             aposta_vencedora = 'E'
-        elif aposta == 'J':
-            venceu = False
     # quando a terceira carta já foi sorteada mas ainda não são 8 ou 9:
     else: 
         if soma_das_cartasb > soma_das_cartas1:
-            if aposta == 'B':
                 aposta_vencedora = 'B'
-                venceu = True
-            elif aposta == 'E':
-                venceu = False
-            elif aposta == 'J':
-               venceu = False
         if soma_das_cartas1 > soma_das_cartasb:
-            if aposta == 'B':
-                venceu = False
-            elif aposta == 'E':
-                venceu = False
-            elif aposta == 'J':
-                venceu = True
                 aposta_vencedora = 'J'
         if soma_das_cartasb == soma_das_cartas1:
-            if aposta == 'B':
-                venceu = False
-            elif aposta == 'E':
-                venceu = True
                 aposta_vencedora = 'E'
-            elif aposta == 'J':
-                venceu = False
 
-    if venceu == True:
-        i=0 
-        while i < número_de_jogadores:
-            if apostas[i] == aposta_vencedora:
-                fichas[i] = comissão(aposta, valores_das_apostas[i], fichas1)
-                print('Jogador {}, você ganhou essa rodada'.format(i+1))
-                print('Você tem {0:.2f} fichas'.format(fichas1)) # conversei com o andrew sobre o número de casas decimais e ele disse que uma boa ideia seria reduzir pra duas 
-            i += 1
-    if venceu == False:
-        i=0
-        while i < número_de_jogadores:
-            if apostas[i] != aposta_vencedora:
-                fichas[i] -= valores_das_apostas[i]
-                print('Jogador {},você perdeu sua aposta'.format(i+1))
-                print('Você tem {} fichas'.format(fichas[i]))
-            i += 1
+    i=0 
+    while i < número_de_jogadores:
+        if apostas[i] == aposta_vencedora:
+            fichas[i] = comissão(aposta, valores_das_apostas[i], fichas[i])
+            print('Jogador {}, você ganhou essa rodada'.format(i+1))
+            print('Você tem {0:.2f} fichas'.format(fichas[i])) # conversei com o andrew sobre o número de casas decimais e ele disse que uma boa ideia seria reduzir pra duas 
+        i += 1
+
+    i=0
+    while i < número_de_jogadores:
+        if apostas[i] != aposta_vencedora:
+            fichas[i] -= valores_das_apostas[i]
+            print('Jogador {},você perdeu sua aposta'.format(i+1))
+            print('Você tem {} fichas'.format(fichas[i]))
+        i += 1
     # para finalizar o loop:
     if fichas1 <= 0:
         jogando = False
