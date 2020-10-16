@@ -59,7 +59,7 @@ while jogando:
     
     i = 0 
     while i < número_de_jogadores:
-        print('Jogador {0}, você está começando a rodada com {1} fichas'.format(i+1, fichas1))
+        print('Jogador {0}, você está começando a rodada com {1:.2f} fichas'.format(i+1, fichas[i]))
         inválido = True # invalida as situações em que o jogo não poderia acontecer. evita apostar mais do que poderia e escrever termos sem sentido
         while inválido:
             aposta = input('Qual é sua aposta? Digite "B" para banco, "E" para empate e "J" para jogador. Para sair do jogo aperte S. '.format(i+1)) # padronização de apenas uma letra maiúscula para não dificultar a escrita
