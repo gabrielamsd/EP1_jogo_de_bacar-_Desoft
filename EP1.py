@@ -28,7 +28,7 @@ def comissão(aposta, valor_da_aposta, fichas1):
     return fichas1
 
 aposta_vencedora = 0
-# adicionando opções de jogo com mais de 1 baralho.
+# adicionando opções de jogo com 6 ou 8 baralhos.
 inválido = True
 while inválido:
     baralhos = int(input('Gostaria de jogar com 6 ou 8 baralhos? ' ))
@@ -59,15 +59,12 @@ while jogando:
     
     i = 0 
     while i < número_de_jogadores:
-        print('Jogador {0}, você está começando a rodada com {1:.2f} fichas'.format(i+1, fichas[i]))
+        print('\nJogador {0}, você está começando a rodada com {1:.2f} fichas'.format(i+1, fichas[i]))
         inválido = True # invalida as situações em que o jogo não poderia acontecer. evita apostar mais do que poderia e escrever termos sem sentido
         while inválido:
-            aposta = input('Qual é sua aposta? Digite "B" para banco, "E" para empate e "J" para jogador. Para sair do jogo aperte S. '.format(i+1)) # padronização de apenas uma letra maiúscula para não dificultar a escrita
-            if aposta != 'B' and aposta != 'E' and aposta != 'J':
+            aposta = input('Qual é sua aposta? Digite "B" para banco, "E" para empate e "J" para jogador. '.format(i+1)) # padronização de apenas uma letra maiúscula para não dificultar a escrita
+            elif aposta != 'B' and aposta != 'E' and aposta != 'J':
                 print('Aposta inválida!')
-            elif aposta == 'S':
-                jogando = False
-                print('Obrigado por jogar!')
             else:
                 inválido = False
                 apostas.append(aposta)
@@ -83,10 +80,10 @@ while jogando:
     # sorteando duas cartas para cada um
     # adicionado falar as cartas selecionadas para organizar a interação
     # adicionada a função para substituir o parágrafo
-    print('Sorteando...')
+    print('\nSorteando...')
     jogador1 = sorteio_de_cartas(cartas, contador, jogador1, 2)
     banco = sorteio_de_cartas(cartas, contador, banco, 2)
-    print('Cartas do jogador:', jogador1)
+    print('Cartas da jogador:', jogador1)
     print('Cartas do banco:', banco)
     
     # atribuir o valor da lista "valores" às cartas da lista "cartas" e somar as sorteadas anteriormente
@@ -169,7 +166,7 @@ while jogando:
             aposta_vencedora = 'J'
     if (soma_das_cartasb == 8 or soma_das_cartasb == 9) and (soma_das_cartas1 != 8 and soma_das_cartas1 != 9):
             aposta_vencedora = 'B'
-    # empates aqui!!!
+    # empates aqui
     if (soma_das_cartasb == 8 or soma_das_cartasb == 9) and (soma_das_cartas1 == 8 or soma_das_cartas1 == 9) or ((soma_das_cartas1 == 6 and soma_das_cartasb == 6) or (soma_das_cartas1 == 7 and soma_das_cartasb == 7)):
             aposta_vencedora = 'E'
     # quando a terceira carta já foi sorteada mas ainda não são 8 ou 9:
@@ -181,11 +178,12 @@ while jogando:
         if soma_das_cartasb == soma_das_cartas1:
                 aposta_vencedora = 'E'
 
+    print('\nA aposta venvedora foi: {}'.format(aposta_vencedora))
     i=0 
     while i < número_de_jogadores:
         if apostas[i] == aposta_vencedora:
-            fichas[i] = comissão(aposta, valores_das_apostas[i], fichas[i])
-            print('Jogador {}, você ganhou essa rodada'.format(i+1))
+            fichas[i] = comissão(apostas[i], valores_das_apostas[i], fichas[i])
+            print('Jogador {}, você ganhou essa rodada!'.format(i+1))
             print('Você tem {0:.2f} fichas'.format(fichas[i])) # conversei com o andrew sobre o número de casas decimais e ele disse que uma boa ideia seria reduzir pra duas 
         i += 1
 
@@ -200,3 +198,9 @@ while jogando:
     if fichas1 <= 0:
         jogando = False
         print('Você perdeu o jogo.')
+    # corta no jogo np geral, não tem a possibilidade de só uma pessoa sair do jogo.
+    jogar_novamente = input('\nDesejam continuar jogando? Digite "C" para continuar ou "S" para sair do jogo: ')
+    if jogar_novamente == 'S':
+        jogando = False
+        print('Obrigado por jogar!')
+    
