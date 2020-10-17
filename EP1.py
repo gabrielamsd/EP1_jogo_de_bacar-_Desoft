@@ -17,15 +17,16 @@ def sorteio_de_cartas(cartas, contador, mão, n_cartas):
         
     return mão
 # add comissão para 8 baralhos
-# implementando regras de valores para diferentes apostas
-def comissão(aposta, valor_da_aposta, fichas1):
+# implementando regras de valores para diferente
+# s apostas
+def comissão(aposta, valor_da_aposta, fichas):
     if aposta == 'B':
-        fichas1 += valor_da_aposta * 0.9894 
+        fichas += valor_da_aposta * 0.9894 
     elif aposta == 'E':
-        fichas1 += valor_da_aposta * 0.8564 * 8
+        fichas += valor_da_aposta * 0.8564 * 8
     elif aposta == 'J':
-        fichas1 += valor_da_aposta * 0.9876 * 0.95
-    return fichas1
+        fichas += valor_da_aposta * 0.9876 * 0.95
+    return fichas
 
 aposta_vencedora = 0
 # adicionando opções de jogo com 6 ou 8 baralhos.
@@ -41,10 +42,9 @@ while inválido:
 número_de_jogadores = int(input('Quantos jogadores participarão? '))
 cartas = ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K'] 
 valores = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0]
-fichas1 = 100
-fichas = [fichas1]  * número_de_jogadores
-apostas = []
-valores_das_apostas = []
+fichas_iniciais = 100
+fichas = [fichas_iniciais]  * número_de_jogadores
+
 if baralhos == 8:
     contador = [32]*len(cartas)  # 32 cartas de cada pois em um baralho existem 4 naipes. com 8 baralhos o limite fica 32 cartas para cada símbolo
 elif baralhos == 6:
@@ -56,6 +56,8 @@ jogando = True
 while jogando:
     jogador1 = [] # listas vazias para as cartas serem adicionadas
     banco = []
+    apostas = []
+    valores_das_apostas = []
     
     i = 0 
     while i < número_de_jogadores:
@@ -63,7 +65,7 @@ while jogando:
         inválido = True # invalida as situações em que o jogo não poderia acontecer. evita apostar mais do que poderia e escrever termos sem sentido
         while inválido:
             aposta = input('Qual é sua aposta? Digite "B" para banco, "E" para empate e "J" para jogador. '.format(i+1)) # padronização de apenas uma letra maiúscula para não dificultar a escrita
-            elif aposta != 'B' and aposta != 'E' and aposta != 'J':
+            if aposta != 'B' and aposta != 'E' and aposta != 'J':
                 print('Aposta inválida!')
             else:
                 inválido = False
@@ -71,8 +73,8 @@ while jogando:
         inválido = True
         while inválido:    
             valor_da_aposta = int(input('Quanto você aposta? Digite apenas números por favor '))
-            if valor_da_aposta > fichas1:
-                print('Você não possui essa quantidade de fichas. Seu limite é {}'.format(fichas1))
+            if valor_da_aposta > fichas[i]:
+                print('Você não possui essa quantidade de fichas. Seu limite é {}'.format(fichas[i]))
             else:
                 valores_das_apostas.append(valor_da_aposta)
                 inválido = False
@@ -185,22 +187,37 @@ while jogando:
             fichas[i] = comissão(apostas[i], valores_das_apostas[i], fichas[i])
             print('Jogador {}, você ganhou essa rodada!'.format(i+1))
             print('Você tem {0:.2f} fichas'.format(fichas[i])) # conversei com o andrew sobre o número de casas decimais e ele disse que uma boa ideia seria reduzir pra duas 
-        i += 1
-
-    i=0
-    while i < número_de_jogadores:
-        if apostas[i] != aposta_vencedora:
+        elif apostas[i] != aposta_vencedora:
             fichas[i] -= valores_das_apostas[i]
             print('Jogador {},você perdeu sua aposta'.format(i+1))
             print('Você tem {} fichas'.format(fichas[i]))
         i += 1
-    # para finalizar o loop:
-    if fichas1 <= 0:
-        jogando = False
-        print('Você perdeu o jogo.')
-    # corta no jogo np geral, não tem a possibilidade de só uma pessoa sair do jogo.
-    jogar_novamente = input('\nDesejam continuar jogando? Digite "C" para continuar ou "S" para sair do jogo: ')
-    if jogar_novamente == 'S':
-        jogando = False
-        print('Obrigado por jogar!')
-    
+    # se alguém perde as fichas, o número dos jogadores restantes muda, mas as fichas continuam as mesmas:
+    perdedores = 0
+    i = 0 
+    while i < número_de_jogadores:
+        if fichas[i] == 0:
+            del(fichas[i])
+            perdedores += 1
+            print('Jogador {}, suas fichas acabaram, você perdeu o jogo. Toda vez que um jogador perde ou sai do jogo, os jogadores depois desse jogador passam a ser o número do jogador anterior ao dele, mas as fichas continuam as mesmas!'.format(i+1))
+        i += 1
+    número_de_jogadores -= perdedores
+    desertores = 0 # quem decidir sair do jogo no meio, deixando os outros jogadores dando continuidade
+    i = 0
+    while i < número_de_jogadores:
+        jogar_novamente = input('\nJogador {}, deseja continuar jogando? Digite "C" para continuar ou "S" para sair do jogo: '.format(i+1))
+        if jogar_novamente == 'S':
+            del(fichas[i])
+            desertores += 1
+            print('Obrigado por jogar! Toda vez que um jogador perde ou sai do jogo, os jogadores depois desse jogador passam a ser o número do jogador anterior ao dele, mas as fichas continuam as mesmas!')
+        i += 1
+    número_de_jogadores -= desertores
+
+    # se alguém quiser entrar no meio, os jogadores continuam com o numero de fichas que tinham e esse novo jogador passa a participar com o valor inicial de fichas
+    acrescenta_jogadores = input('\nDeseja acrescentar jogadores na partida? "S" para sim e "N" para não. ')
+    if acrescenta_jogadores == "S":
+        recrutas = int(input('Quantos jogadores deseja acrescentar? '))
+        número_de_jogadores += recrutas
+        i = 0
+        while i < recrutas:
+            fichas.append(fichas_iniciais)
