@@ -39,7 +39,7 @@ while inválido:
         inválido = False
 
 # adicionando opção de escolha no número de jogadores
-número_de_jogadores = int(input('Quantos jogadores participarão? '))
+número_de_jogadores = int(input('Quantos jogadores participarão? Digite apenas números por favor. '))
 cartas = ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K'] 
 valores = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0]
 fichas_iniciais = 100
@@ -56,29 +56,32 @@ jogando = True
 while jogando:
     jogador1 = [] # listas vazias para as cartas serem adicionadas
     banco = []
-    apostas = []
-    valores_das_apostas = []
+    apostas = [0] * número_de_jogadores # mudei essas listas porque quando um jogador perde ele deixa de apostar e ai o indice das listas ficam diferentes.
+    valores_das_apostas = [0] * número_de_jogadores
     
     i = 0 
     while i < número_de_jogadores:
-        print('\nJogador {0}, você está começando a rodada com {1:.2f} fichas'.format(i+1, fichas[i]))
-        inválido = True # invalida as situações em que o jogo não poderia acontecer. evita apostar mais do que poderia e escrever termos sem sentido
-        while inválido:
-            aposta = input('Qual é sua aposta? Digite "B" para banco, "E" para empate e "J" para jogador. '.format(i+1)) # padronização de apenas uma letra maiúscula para não dificultar a escrita
-            if aposta != 'B' and aposta != 'E' and aposta != 'J':
-                print('Aposta inválida!')
-            else:
-                inválido = False
-                apostas.append(aposta)
-        inválido = True
-        while inválido:    
-            valor_da_aposta = int(input('Quanto você aposta? Digite apenas números por favor '))
-            if valor_da_aposta > fichas[i]:
-                print('Você não possui essa quantidade de fichas. Seu limite é {}'.format(fichas[i]))
-            else:
-                valores_das_apostas.append(valor_da_aposta)
-                inválido = False
-        i+=1
+        if fichas[i] > 0: # se alguém perde as fichas, perde o jogo e para de poder apostar
+            print('\nJogador {0}, você está começando a rodada com {1:.2f} fichas'.format(i+1, fichas[i]))
+            inválido = True # invalida as situações em que o jogo não poderia acontecer. evita apostar mais do que poderia e escrever termos sem sentido
+            while inválido:
+                aposta = input('Qual é sua aposta? Digite "B" para banco, "E" para empate e "J" para jogador. '.format(i+1)) # padronização de apenas uma letra maiúscula para não dificultar a escrita
+                if aposta != 'B' and aposta != 'E' and aposta != 'J':
+                    print('Aposta inválida!')
+                else:
+                    inválido = False
+                    apostas[i] = aposta
+            inválido = True
+            while inválido:    
+                valor_da_aposta = int(input('Quanto você aposta? Digite apenas números por favor. '))
+                if valor_da_aposta > fichas[i]:
+                    print('Você não possui essa quantidade de fichas. Seu limite é {}'.format(fichas[i]))
+                else:
+                    valores_das_apostas[i] = valor_da_aposta
+                    inválido = False
+        i += 1
+
+
     # sorteando duas cartas para cada um
     # adicionado falar as cartas selecionadas para organizar a interação
     # adicionada a função para substituir o parágrafo
@@ -151,7 +154,7 @@ while jogando:
         soma_das_cartasb += valores[cartas.index(banco[2])]  
         if soma_das_cartasb > 9:
             soma_das_cartasb -= 10
-        
+        print('Nova carta do banco:', banco[2])
         print('Nova soma das cartas do banco:', soma_das_cartasb) 
 
     # adicionado vencer = True para facilitar e diminuir o programa
@@ -180,39 +183,39 @@ while jogando:
         if soma_das_cartasb == soma_das_cartas1:
                 aposta_vencedora = 'E'
 
-    print('\nA aposta venvedora foi: {}'.format(aposta_vencedora))
+    print('\nA aposta vencedora foi: {}'.format(aposta_vencedora))
     i=0 
     while i < número_de_jogadores:
-        if apostas[i] == aposta_vencedora:
-            fichas[i] = comissão(apostas[i], valores_das_apostas[i], fichas[i])
-            print('Jogador {}, você ganhou essa rodada!'.format(i+1))
-            print('Você tem {0:.2f} fichas'.format(fichas[i])) # conversei com o andrew sobre o número de casas decimais e ele disse que uma boa ideia seria reduzir pra duas 
-        elif apostas[i] != aposta_vencedora:
-            fichas[i] -= valores_das_apostas[i]
-            print('Jogador {},você perdeu sua aposta'.format(i+1))
-            print('Você tem {} fichas'.format(fichas[i]))
+        if fichas[i] > 0:
+            if apostas[i] == aposta_vencedora:
+                fichas[i] = comissão(apostas[i], valores_das_apostas[i], fichas[i])
+                print('\nJogador {}, você ganhou essa rodada!'.format(i+1))
+                print('Você tem {0:.2f} fichas'.format(fichas[i])) # conversei com o andrew sobre o número de casas decimais e ele disse que uma boa ideia seria reduzir pra duas 
+            elif apostas[i] != aposta_vencedora:
+                fichas[i] -= valores_das_apostas[i]
+                print('\nJogador {},você perdeu sua aposta'.format(i+1))
+                print('Você tem {0:.2f} fichas'.format(fichas[i]))
         i += 1
-    # se alguém perde as fichas, o número dos jogadores restantes muda, mas as fichas continuam as mesmas:
-    perdedores = 0
-    i = 0 
-    while i < número_de_jogadores:
-        if fichas[i] == 0:
-            del(fichas[i])
-            perdedores += 1
-            print('Jogador {}, suas fichas acabaram, você perdeu o jogo. Toda vez que um jogador perde ou sai do jogo, os jogadores depois desse jogador passam a ser o número do jogador anterior ao dele, mas as fichas continuam as mesmas!'.format(i+1))
-        i += 1
-    número_de_jogadores -= perdedores
-    desertores = 0 # quem decidir sair do jogo no meio, deixando os outros jogadores dando continuidade
+ # quem decidir sair do jogo no meio tem suas fichas zeradas, deixando os outros jogadores dando continuidade
     i = 0
     while i < número_de_jogadores:
-        jogar_novamente = input('\nJogador {}, deseja continuar jogando? Digite "C" para continuar ou "S" para sair do jogo: '.format(i+1))
-        if jogar_novamente == 'S':
-            del(fichas[i])
-            desertores += 1
-            print('Obrigado por jogar! Toda vez que um jogador perde ou sai do jogo, os jogadores depois desse jogador passam a ser o número do jogador anterior ao dele, mas as fichas continuam as mesmas!')
-        i += 1
-    número_de_jogadores -= desertores
+        if fichas[i] > 0:
+            jogar_novamente = input('\nJogador {}, deseja continuar jogando? Digite "C" para continuar ou "S" para sair do jogo: '.format(i+1))
+            if jogar_novamente == "S":
+                fichas[i] = -1 # Com as fichas em um valor negativo, ele sai da condição, se não, toda rodada iria avisar que ele saiu.
+                print('Obrigado por jogar!')
+        elif fichas[i] == 0:
+            print('\nJogador {}, você perdeu o jogo por falta de fichas. '.format(i+1))
+            continuar_jogando = input('Deseja continuar jogando? Se sim, digite "C", caso contrário digita qualquer outra tecla. ')
+            if continuar_jogando == "C":
+                fichas2 = input("Quantas fichas deseja comprar? Digite apenas números, por favor. ")
+                fichas[i] = fichas2
+            else:
+                print('obrigado por jogar!')
+                fichas[i] = -1 # Com as fichas em um valor negativo, ele sai da condição, se não, toda rodada iria avisar que ele perdeu.
+        i += 1    
 
+        
     # se alguém quiser entrar no meio, os jogadores continuam com o numero de fichas que tinham e esse novo jogador passa a participar com o valor inicial de fichas
     acrescenta_jogadores = input('\nDeseja acrescentar jogadores na partida? "S" para sim e "N" para não. ')
     if acrescenta_jogadores == "S":
@@ -221,3 +224,4 @@ while jogando:
         i = 0
         while i < recrutas:
             fichas.append(fichas_iniciais)
+            i +=1
