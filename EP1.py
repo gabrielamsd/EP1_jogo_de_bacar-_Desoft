@@ -5,6 +5,7 @@
 import random
 # lista de cartas e lista de valores das cartas 
 # add *8 pra ser oito baralho completo de 52 cartas - contador adicionado que limita o número de cartas para 4 por baralho, 32 cartas de cada símbolo.
+# se todos os jogadores sairem/perderem, o jogo continua. A ideia pé que, em um cassino, o dealer continua la até que alguém queira entrar, entao enquanto não tiverem jogadores ele continua la, e quando chegarem jogadores eles entram na partida.
 def sorteio_de_cartas(cartas, contador, mão, n_cartas):
     i = 0
     while i< n_cartas: 
@@ -19,22 +20,34 @@ def sorteio_de_cartas(cartas, contador, mão, n_cartas):
 # add comissão para 8 baralhos
 # implementando regras de valores para diferente
 # s apostas
-def comissão(aposta, valor_da_aposta, fichas):
-    if aposta == 'B':
-        fichas += valor_da_aposta * 0.9894 
-    elif aposta == 'E':
-        fichas += valor_da_aposta * 0.8564 * 8
-    elif aposta == 'J':
-        fichas += valor_da_aposta * 0.9876 * 0.95
-    return fichas
 
+def comissão(aposta, valor_da_aposta, fichas, baralhos): 
+    if aposta == 'B':
+        if baralhos == 6 or baralhos == 8:
+            fichas += valor_da_aposta * 0.9894 * 0.95
+        else:
+            fichas += valor_da_aposta * 0.9899 * 0.95
+    elif aposta == 'E':
+        if baralhos == 8:    
+            fichas += valor_da_aposta * 0.8564 * 8
+        elif baralhos == 6:
+            fichas += valor_da_aposta * 0.8556 * 8
+        else:
+            fichas += valor_da_aposta * 0.8425 * 8
+    elif aposta == 'J':
+        if baralhos == 8 or baralhos == 6:   
+            fichas += valor_da_aposta * 0.9876 
+        else:
+            fichas += valor_da_aposta * 0.9871
+
+    return fichas
 aposta_vencedora = 0
 # adicionando opções de jogo com 6 ou 8 baralhos.
 inválido = True
 while inválido:
-    baralhos = int(input('Gostaria de jogar com 6 ou 8 baralhos? ' ))
-    if baralhos != 6 and baralhos != 8:
-        print('Quantidade de baralhos inválida. Opções possíveis: 6 ou 8')
+    baralhos = int(input('Gostaria de jogar com 1, 6 ou 8 baralhos? ' ))
+    if baralhos != 6 and baralhos != 8 and baralhos != 1:
+        print('Quantidade de baralhos inválida. Opções possíveis: 1, 6 ou 8')
     else:
         inválido = False
 
@@ -46,10 +59,11 @@ fichas_iniciais = 100
 fichas = [fichas_iniciais]  * número_de_jogadores
 
 if baralhos == 8:
-    contador = [32]*len(cartas)  # 32 cartas de cada pois em um baralho existem 4 naipes. com 8 baralhos o limite fica 32 cartas para cada símbolo
+    contador = [32]*len(cartas)  # 32 cartas de cada, pois em um baralho existem 4 naipes. com 8 baralhos o limite fica 32 cartas para cada símbolo
 elif baralhos == 6:
-    contador = [24]*len(cartas)  # 24 cartas de cada pois em um baralho existem 4 naipes. com 6 baralhos o limite fica 24 cartas para cada símbolo
-
+    contador = [24]*len(cartas)  # 24 cartas de cada, pois em um baralho existem 4 naipes. com 6 baralhos o limite fica 24 cartas para cada símbolo
+elif baralhos == 1:
+    contador = [4]*len(cartas) # 4 cartas de cada, pois  em um baraho são 4 naipes. 
 # adicionando mais jogadores para apostar
 # adicionado while e condição de validade para a interação
 jogando = True
@@ -188,7 +202,7 @@ while jogando:
     while i < número_de_jogadores:
         if fichas[i] > 0:
             if apostas[i] == aposta_vencedora:
-                fichas[i] = comissão(apostas[i], valores_das_apostas[i], fichas[i])
+                fichas[i] = comissão(apostas[i], valores_das_apostas[i], fichas[i], baralhos)
                 print('\nJogador {}, você ganhou essa rodada!'.format(i+1))
                 print('Você tem {0:.2f} fichas'.format(fichas[i])) # conversei com o andrew sobre o número de casas decimais e ele disse que uma boa ideia seria reduzir pra duas 
             elif apostas[i] != aposta_vencedora:
